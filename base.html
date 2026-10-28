@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}KEMU HOSTING BOT{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="logo">🐍 KEMU HOSTING BOT</div>
+    <div>
+        {% if session.uid %}
+            <a href="/dashboard">Dashboard</a>
+            {% if session.is_admin %}<a href="/admin/">Admin</a>{% endif %}
+            <a href="/logout">Logout ({{ session.username }})</a>
+        {% else %}
+            <a href="/login">Login</a>
+            <a href="/signup">Signup</a>
+        {% endif %}
+    </div>
+</nav>
+<main class="container">
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% for cat, m in msgs %}
+        <div class="flash {{ cat }}">{{ m }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>

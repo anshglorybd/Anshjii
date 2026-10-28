@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ app.name }} <span class="badge {{ app.status }}">{{ app.status }}</span></h1>
+
+{% if url %}
+<p>🌐 <a href="{{ url }}" target="_blank"><code>{{ url }}</code> ↗</a></p>
+{% endif %}
+
+<div class="row">
+    <div class="card">
+        <h4>Stats</h4>
+        <p>CPU: {{ stats.cpu_pct }}%</p>
+        <p>RAM: {{ stats.mem_mb }} MB</p>
+        <p>Port: {{ app.port }}</p>
+        <p>Subdomain: {{ app.subdomain }}.{{ base_domain }}</p>
+    </div>
+    <div class="card">
+        <h4>Actions</h4>
+        {% if app.status == 'running' %}
+        <form method="POST" action="/app/{{ app.id }}/stop" style="display:inline">
+            <button class="btn-warn">⏹ Stop</button>
+        </form>
+        {% else %}
+        <form method="POST" action="/app/{{ app.id }}/start" style="display:inline">
+            <button class="btn-ok">▶ Start</button>
+        </form>
+        {% endif %}
+        <a class="btn-sec" href="/app/{{ app.id }}/download">⬇ Download ZIP</a>
+        <form method="POST" action="/app/{{ app.id }}/delete" style="display:inline"
+              onsubmit="return confirm('Delete permanently?')">
+            <button class="btn-danger">🗑 Delete</button>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <h4>Live Logs (auto-refresh)</h4>
+    <pre id="logbox" style="background:#111;color:#0f0;padding:10px;max-height:400px;overflow:auto">{{ logs }}</pre>
+</div>
+
+<div class="card">
+    <h4>Deployment History</h4>
+    <table>
+        <tr><th>Version</th><th>Status</th><th>Time</th></tr>
+        {% for d in deployments %}
+        <tr><td>v{{ d.version }}</td><td>{{ d.status }}</td><td>{{ d.deployed_at }}</td></tr>
+        {% endfor %}
+    </table>
+</div>
+
+<script>
+setInterval(async () => {
+    const r = await fetch("/api/app/{{ app.id }}/logs");
+    const d = await r.json();
+    document.getElementById("logbox").textContent = d.logs || "(no logs)";
+}, 3000);
+</script>
+{% endblock %}

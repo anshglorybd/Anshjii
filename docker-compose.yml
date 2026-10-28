@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  kemu-core:
+    build: .
+    container_name: kemu-core
+    restart: unless-stopped
+    expose:
+      - "5000"
+    volumes:
+      - ./hosting.db:/app/hosting.db
+      - ./apps_data:/app/apps_data
+      - ./uploads:/app/uploads
+      - ./nginx/conf.d:/app/nginx/conf.d
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - BASE_DOMAIN=${BASE_DOMAIN}
+      - HOSTING_MODE=subdomain
+      - PORT_RANGE_START=${PORT_RANGE_START}
+      - PORT_RANGE_END=${PORT_RANGE_END}
+      - DOCKER_NETWORK=kemu-net
+    networks:
+      - kemu-net
+
+  kemu-nginx:
+    image: nginx:alpine
+    container_name: kemu-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - kemu-core
+    networks:
+      - kemu-net
+
+networks:
+  kemu-net:
+    name: kemu-net
+    driver: bridge

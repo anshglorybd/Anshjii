@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - KEMU HOSTING BOT{% endblock %}
+{% block content %}
+<h1>Hello {{ user.username }} 👋</h1>
+<p>Plan: <b>{{ user.plan }}</b> | Apps: {{ apps|length }}/{{ user.app_limit }}</p>
+
+<div class="card">
+    <h3>🚀 Deploy New App</h3>
+    <form method="POST" action="/deploy" enctype="multipart/form-data">
+        <label>App name (a-z, 0-9)</label>
+        <input name="name" required pattern="[a-z0-9-]+" placeholder="mybot">
+        <label>ZIP file (contains app.py + requirements.txt)</label>
+        <input type="file" name="zipfile" accept=".zip" required>
+        <label>Environment variables (optional, KEY=VALUE per line)</label>
+        <textarea name="env_vars" rows="3"
+                  placeholder="API_KEY=abc123&#10;DEBUG=0"></textarea>
+        <button class="btn" type="submit">Deploy</button>
+    </form>
+    <p style="color:#888;font-size:0.9em;">
+        Your app will be live at:
+        <code>http://{{ session.username }}-appname.{{ base_domain }}</code>
+    </p>
+</div>
+
+<h3>Your Apps</h3>
+{% for app in apps %}
+<div class="card app-card {{ app.status }}">
+    <div>
+        <b>{{ app.name }}</b>
+        <span class="badge {{ app.status }}">{{ app.status }}</span>
+        {% if app.stats %}
+            <small>CPU {{ app.stats.cpu_pct }}% | RAM {{ app.stats.mem_mb }}MB</small>
+        {% endif %}
+    </div>
+    {% if app.url %}
+    <a href="{{ app.url }}" target="_blank" class="btn-sec">
+        Open {{ app.url }} ↗
+    </a>
+    {% endif %}
+    <a href="/app/{{ app.id }}">Manage →</a>
+</div>
+{% else %}
+<p>No apps yet. Upload one above!</p>
+{% endfor %}
+{% endblock %}

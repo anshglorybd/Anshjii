@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="hero">
+    <h1>Deploy Python Apps in Seconds 🚀</h1>
+    <p>Upload a ZIP → we install packages, build Docker image, and give you a live subdomain.</p>
+    <a class="btn" href="/signup">Get Started Free</a>
+</div>
+<div class="features">
+    <div class="feature">🐳 <b>Docker Isolation</b><p>Every app in its own container.</p></div>
+    <div class="feature">🔒 <b>Resource Limits</b><p>CPU/RAM caps per app.</p></div>
+    <div class="feature">🌐 <b>Free Subdomain</b><p>yourname-app.{{ base_domain }}</p></div>
+    <div class="feature">📊 <b>Live Logs</b><p>See real-time output.</p></div>
+</div>
+{% endblock %}
